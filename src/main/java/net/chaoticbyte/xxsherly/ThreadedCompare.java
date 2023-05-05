@@ -2,10 +2,10 @@ package net.chaoticbyte.xxsherly;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.Checksum;
+import org.apache.commons.codec.digest.XXHash32;
 
 public class ThreadedCompare extends Thread {
 
@@ -40,30 +40,26 @@ public class ThreadedCompare extends Thread {
 
     //this is used to get the MD5 String of one of the files (one of them is just fine since they both have the same value)
     private String getChecksum (File file) throws IOException {
-        MessageDigest messageDigest = null;
 
-        try {
-            messageDigest = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+        String digest = "";
 
+        // Calculate xxHash32 and add it's hexadecimal presentation to the digest
+
+        Checksum xxHash = new XXHash32();
         FileInputStream inputStream = new FileInputStream(file);
-
         byte[] dataBytes = new byte[1024];
         int unread = 0;
         while ((unread = inputStream.read(dataBytes)) != -1) {
-            messageDigest.update(dataBytes, 0, unread);
+            xxHash.update(dataBytes, 0, unread);
         }
-
         inputStream.close();
+        digest += Long.toHexString(xxHash.getValue());
 
-        // get digest & create hexadecimal represenation
-        byte[] digestBytes = messageDigest.digest();
-        StringBuilder stringBuilder = new StringBuilder();
-        for (byte digestByte : digestBytes) {
-            stringBuilder.append(Integer.toString((digestByte & 0xff) + 0x100, 16).substring(1));
-        }
-        return stringBuilder.toString();
+        // Add File length to the digest
+
+        digest += Long.toHexString(file.length());
+
+        // return result
+        return digest;
     }
 }

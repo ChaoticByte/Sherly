@@ -1,6 +1,6 @@
 # xxSherly
 
-A fork of [Sherly](https://github.com/BlyDoesCoding/Sherly), (not yet) using [xxHash](https://github.com/Cyan4973/xxHash).
+A fork of [Sherly](https://github.com/BlyDoesCoding/Sherly), using [xxHash](https://github.com/Cyan4973/xxHash).
 
 ## Introduction
 
@@ -24,7 +24,7 @@ Usage: sherly -f inputfolder1 inputfolder2 inputfolder3 [options]...
 ## Build
 
 ```bash
-mvn package
+mvn package assembly:single
 ```
 
 ## Supported Platforms

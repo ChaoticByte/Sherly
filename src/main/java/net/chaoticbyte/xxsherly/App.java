@@ -151,10 +151,10 @@ public class App {
         for (String checksum: fileMap.keySet()) {
 
             if (doTheColorThingy) {
-                System.out.println(ConsoleColors.BLUE_BOLD + checksum + ConsoleColors.CYAN_BOLD + " --> " + ConsoleColors.GREEN_BOLD + fileMap.get(checksum) + ConsoleColors.RESET);
+                System.out.println(ConsoleColors.BLUE_BOLD + checksum + ConsoleColors.CYAN_BOLD + "\t--> " + ConsoleColors.GREEN_BOLD + fileMap.get(checksum) + ConsoleColors.RESET);
 
             } else {
-                System.out.println(checksum +" --> " + fileMap.get(checksum));
+                System.out.println(checksum +"\t--> " + fileMap.get(checksum));
             }
 
         }
