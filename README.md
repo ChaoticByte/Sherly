@@ -46,8 +46,8 @@ mvn package assembly:single
 I let Sherly and xxSherly find duplicates in my Music Library (containing `.wav` files) using the following commands:
 
 ```bash
-time java -jar Bin/sherly.jar -n -f ~/Music/ /usr/lib
-time java -jar target/xxSherly-1.0-jar-with-dependencies.jar -n -f ~/Music/ /usr/lib
+time java -jar Bin/sherly.jar -n -f ~/Music/
+time java -jar target/xxSherly-1.0-jar-with-dependencies.jar -n -f ~/Music/
 ```
 
 The timings are measured using the Linux tool `time` (`real`).
