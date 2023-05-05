@@ -1,4 +1,4 @@
-package com.blydoescoding.sherly;
+package net.chaoticbyte.xxsherly;
 
 // Just regular Colors to make it a bit prettier
 

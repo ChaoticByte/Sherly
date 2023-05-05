@@ -1,4 +1,4 @@
-package com.blydoescoding.sherly;
+package net.chaoticbyte.xxsherly;
 
 import java.io.*;
 import java.nio.file.Path;

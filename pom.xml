@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.blydoescoding.sherly</groupId>
+  <groupId>net.chaoticbyte.xxsherly</groupId>
   <artifactId>xxSherly</artifactId>
   <version>1.0</version>
 
@@ -55,7 +55,7 @@
           <configuration>
             <archive>
               <manifest>
-                <mainClass>com.blydoescoding.sherly.App</mainClass>
+                <mainClass>net.chaoticbyte.xxsherly.App</mainClass>
               </manifest>
             </archive>
           </configuration>
