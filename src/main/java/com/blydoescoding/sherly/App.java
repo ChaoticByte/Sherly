@@ -1,3 +1,5 @@
+package com.blydoescoding.sherly;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,11 +12,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Main {
+public class App {
 
     public static int completedThreads = 0;
     public static int progress = 0;
     public static HashMap<String, List<Path>> fileMap = new HashMap<>();
+
     public static void main(String[] args) throws InterruptedException {
         boolean doTheColorThingy = false;
         boolean showProgress = false;
@@ -23,13 +26,11 @@ public class Main {
         boolean recordThreads = false;
         int saidThreads = 0;
         boolean showDebug = false;
-        boolean noInput = false;
         boolean help = false;
 
         List<String> paths = new ArrayList<>();
 
-        for(String i : args)
-        {
+        for(String i : args) {
             if (recordFolder) {
                 if(Files.isDirectory(Paths.get(i))) {
                     paths.add(i);
@@ -44,7 +45,6 @@ public class Main {
             if (i.equalsIgnoreCase("-f") || i.equalsIgnoreCase("-folder")) { recordFolder = true;}
             if (i.equalsIgnoreCase("-t") || i.equalsIgnoreCase("-threads")) { recordThreads = true;}
             if (i.equalsIgnoreCase("-d") || i.equalsIgnoreCase("-delete")) { deleteDups = true;}
-            if (i.equalsIgnoreCase("-n") || i.equalsIgnoreCase("-noinput")) { noInput = true; }
             if (i.equalsIgnoreCase("-h") || i.equalsIgnoreCase("-help")) { help = true;}
             if (i.equalsIgnoreCase("-debug")) { showDebug = true;}
 
@@ -59,7 +59,6 @@ public class Main {
             System.out.println("   -t / -threads          override default Thread number (default is usually number of cores * 2)");
             System.out.println("   -p / -progress         enable progress indicator");
             System.out.println("   -d / -delete           delete all dups except one without asking first");
-            System.out.println("   -n / -noinput          skip all user input");
             System.out.println("   -debug                 debug stuff");
             return;
         }
@@ -116,15 +115,16 @@ public class Main {
 
                 }
             }
+
             //Start Multithreading
-
             //sectionedList gives the thread their Assigned Part of Files
-
             ThreadedCompare threadedCompare = new ThreadedCompare(sectionedList);
             threadedCompare.start();
 
         }
+
         //this updates if necessary the Progress bar and checks for Finished threads
+
         while (completedThreads < availableThreads) {
             TimeUnit.MILLISECONDS.sleep(250);
 
@@ -134,52 +134,51 @@ public class Main {
                 System.out.print("Progress: " + progress + " / " + filesToBeDone + " | " + (progress * 100 / filesToBeDone) + "%" + "\r");
             }
         }
-        ArrayList toRemove = new ArrayList<String>();
-        for (String md5: fileMap.keySet()) {
-            if (Main.fileMap.get(md5).size() == 1) {
-                toRemove.add(md5);
+
+        ArrayList<String> toRemove = new ArrayList<String>();
+        for (String checksum: fileMap.keySet()) {
+            if (App.fileMap.get(checksum).size() == 1) {
+                toRemove.add(checksum);
             }
         }
         fileMap.keySet().removeAll(toRemove);
 
-        //now everything is finished and the Filemap (hashmap with all Dups) can be printed out in a nice view
-        //System.out.println(fileMap);
+        // now everything is finished and the Filemap (hashmap with all Dups) can be printed out in a nice view
 
-        for (String md5: fileMap.keySet()) {
+        for (String checksum: fileMap.keySet()) {
 
             if (doTheColorThingy) {
-                System.out.println(ConsoleColors.BLUE_BOLD + md5 + ConsoleColors.CYAN_BOLD + " --> " + ConsoleColors.GREEN_BOLD + fileMap.get(md5) + ConsoleColors.RESET);
+                System.out.println(ConsoleColors.BLUE_BOLD + checksum + ConsoleColors.CYAN_BOLD + " --> " + ConsoleColors.GREEN_BOLD + fileMap.get(checksum) + ConsoleColors.RESET);
 
             } else {
-                System.out.println(md5 +" --> " + fileMap.get(md5));
+                System.out.println(checksum +" --> " + fileMap.get(checksum));
             }
 
         }
 
-            List<Path> allTheFilesWillBeDeleted = new ArrayList<>();
+        List<Path> allTheFilesWillBeDeleted = new ArrayList<>();
 
-            long bytes = 0;
+        long bytes = 0;
 
-            for (String md5: fileMap.keySet()) {
-                Main.fileMap.get(md5).remove(0);
-                for (Path file: Main.fileMap.get(md5)) {
-                    if (file != null) {
-                        bytes += file.toFile().length();
-                    }
-
+        for (String md5: fileMap.keySet()) {
+            App.fileMap.get(md5).remove(0);
+            for (Path file: App.fileMap.get(md5)) {
+                if (file != null) {
+                    bytes += file.toFile().length();
                 }
-                allTheFilesWillBeDeleted.addAll(Main.fileMap.get(md5));
-
             }
+            allTheFilesWillBeDeleted.addAll(App.fileMap.get(md5));
+        }
 
-            if (deleteDups) {
-                delete(allTheFilesWillBeDeleted);
-            } else if (!noInput) {
-                ask(doTheColorThingy, bytes, allTheFilesWillBeDeleted);
-            }
+        if (deleteDups) {
+            delete(allTheFilesWillBeDeleted);
+        } else {
+            ask(doTheColorThingy, bytes, allTheFilesWillBeDeleted);
+        }
 
     }
-    //print files and ask user
+
+    // print files and ask user
     public static void ask(boolean color, long bytes, List<Path> deleteThem) {
         if (color) {
             System.out.println(ConsoleColors.RED_BOLD + (bytes / 8000000) + " unnecessary MB in " + deleteThem.size() + " Files found, do you want to Delete them? Y / N" + ConsoleColors.RESET);
@@ -193,12 +192,12 @@ public class Main {
             input.close();
 
         } else if (answer.toLowerCase().contains("n")) {
+            input.close();
             return;
         } else {
             ask(color, bytes, deleteThem);
         }
         input.close();
-
     }
 
     public static void delete(List<Path> deleteThem) {
