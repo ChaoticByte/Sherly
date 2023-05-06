@@ -1,7 +1,6 @@
 package net.chaoticbyte.xxsherly;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.Checksum;
@@ -9,30 +8,35 @@ import org.apache.commons.codec.digest.XXHash32;
 
 public class ThreadedCompare extends Thread {
 
-    private final List<Path> pathsToCompareTo;
+    private final List<File> filesToCompare;
 
-    public ThreadedCompare (List<Path> pathsToCompareTo) {
-        this.pathsToCompareTo = pathsToCompareTo;
+    public ThreadedCompare (List<File> pathsToCompare_) {
+        this.filesToCompare = pathsToCompare_;
     }
 
     @Override
     public void run() {
-        for (Path file : pathsToCompareTo) {
-            List<Path> fileArray = new ArrayList<>();
+        for (File file : filesToCompare) {
+
+            List<File> fileArray = new ArrayList<>();
             assert fileArray != null;
             fileArray.add(file);
-            String checksum;
+
+            // Generate Checksum
             try {
-                checksum = getChecksum(file.toFile());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                String checksum = getChecksum(file);
+                if (App.fileMap.containsKey(checksum)) {
+                    fileArray.addAll(App.fileMap.get(checksum));
+                    App.fileMap.put(checksum, fileArray);
+                } else {
+                    App.fileMap.put(checksum, fileArray);
+                }
             }
-            if (App.fileMap.containsKey(checksum)) {
-                fileArray.addAll(App.fileMap.get(checksum));
-                App.fileMap.put(checksum, fileArray);
-            } else {
-                App.fileMap.put(checksum, fileArray);
+            catch (IOException e) {
+                System.err.println("An exception occured while processing the file " + file.getPath());
+                System.err.println(e.getMessage());
             }
+
             App.progress++;
         }
         App.completedThreads++;
@@ -44,7 +48,6 @@ public class ThreadedCompare extends Thread {
         String digest = "";
 
         // Calculate xxHash32 and add it's hexadecimal presentation to the digest
-
         Checksum xxHash = new XXHash32();
         FileInputStream inputStream = new FileInputStream(file);
         byte[] dataBytes = new byte[1024];
@@ -56,7 +59,6 @@ public class ThreadedCompare extends Thread {
         digest += Long.toHexString(xxHash.getValue());
 
         // Add File length to the digest
-
         digest += Long.toHexString(file.length());
 
         // return result

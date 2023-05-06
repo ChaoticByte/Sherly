@@ -13,17 +13,16 @@ Note that xxHash is not a cryptographic hash function and therefore may produce 
 
 ## Usage
 
-```console
-Usage: sherly -f inputfolder1 inputfolder2 inputfolder3 [options]...
- 
-   -h / -help             show this
-   -f / -folder           all the folders you want to scan for (see example above!)
-   -c / -color            enable colored messages
-   -t / -threads          override default Thread number (default is usually number of cores * 2)
-   -p / -progress         enable progress indicator
-   -d / -delete           delete all dups except one without asking first
-   -n / -noinput          skip all user input
-   -debug                 debug stuff
+```
+usage: xxSherly.jar [options] folder1 folder2 ...
+ -c,--color           enable colored output
+ -d,--delete          delete all dups except one, without asking first
+ -h,--help            show this help message
+ -n,--noinput         skip all user input
+ -p,--progress        enable progress indicator
+ -t,--threads <arg>   override default thread number (defaults to the
+                      number of cores)
+ -v,--verbose         more verbose output
 ```
 
 ## Build
@@ -43,7 +42,7 @@ mvn package assembly:single
 
 ## Speed comparison
 
-I let Sherly and xxSherly find duplicates in my Music Library (containing `.wav` files) using the following commands:
+I let Sherly v1.1.4 and xxSherly v1.0 find duplicates in my Music Library (containing `.wav` files) using the following commands:
 
 ```bash
 time java -jar Bin/sherly.jar -n -f ~/Music/
