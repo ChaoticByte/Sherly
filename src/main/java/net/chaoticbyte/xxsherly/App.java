@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,9 +31,7 @@ public class App {
         // Arguments
         List<File> folderList = new ArrayList<>();
         boolean showProgress = false;
-        boolean deleteDups = false;
         boolean verbose = false;
-        boolean noInput = false;
         boolean displayHelp = false;
         int requestedThreads = 0;
 
@@ -46,8 +43,6 @@ public class App {
         commandlineOptions.addOption("c", "color", false, "enable colored output");
         commandlineOptions.addOption("t", "threads", true, "override default thread number (defaults to the number of cores)");
         commandlineOptions.addOption("p", "progress", false, "enable progress indicator");
-        commandlineOptions.addOption("d", "delete", false, "delete all dups except one, without asking first");
-        commandlineOptions.addOption("n", "noinput", false, "skip all user input");
         commandlineOptions.addOption("v", "verbose", false, "more verbose output");
         commandlineOptions.addOption("h", "help", false, "show this help message");
 
@@ -62,9 +57,7 @@ public class App {
             // Get arguments & options
             doTheColorThingy = arguments.hasOption("c");
             showProgress = arguments.hasOption("p");
-            deleteDups = arguments.hasOption("d");
             verbose = arguments.hasOption("v");
-            noInput = arguments.hasOption("n");
             displayHelp = arguments.hasOption("h");
             requestedThreads = Integer.parseInt(arguments.getOptionValue("t", "0"));
         }
@@ -90,7 +83,6 @@ public class App {
             System.out.println("Arguments:");;
             System.out.println("  Folders:  " + folderList.size());
             System.out.println("  Color:    " + doTheColorThingy);
-            System.out.println("  Delete:   " + deleteDups);
             System.out.println("  Progress: " + showProgress);
         }
 
@@ -187,41 +179,5 @@ public class App {
             if (fileMap.size() < 1) color = ConsoleColors.GREEN_BOLD;
             System.out.println(color + (bytes / 1000000.0) + " unnecessary MB in " + toBeDeleted.size() + " file(s) found." + ConsoleColors.RESET);
         } else System.out.println((bytes / 1000000.0) + " unnecessary MB in " + toBeDeleted.size() + " file(s) found.");
-
-        // Don't go further if there is nothing to delete
-        if (fileMap.size() < 1) return;
-
-        if (deleteDups) {
-            System.out.println();
-            delete(toBeDeleted);
-        } else if (!noInput) {
-            // Ask if the user wants to delete the file
-            Scanner input = new Scanner(System.in);
-            while (true) {
-                if (doTheColorThingy) System.out.print(ConsoleColors.RED_BOLD + "Do you want to delete them? [y/n] " + ConsoleColors.RESET);
-                else System.out.print("Do you want to delete them? [y/n] ");
-                String answer = input.next();
-                if (answer.toLowerCase().contains("y")) {
-                    System.out.println();
-                    delete(toBeDeleted);
-                    break;
-                }
-                else if (answer.toLowerCase().contains("n")) break;
-            }
-            input.close();
-        }
-    }
-
-    public static void delete(List<File> fileList) {
-        for (File file : fileList) if (file != null) {
-            if (file.delete()) {
-                if (doTheColorThingy) System.out.println(ConsoleColors.RED_BOLD + "Deleted " + file.toPath() + ConsoleColors.RESET);
-                else System.out.println("Deleted " + file.toPath());
-            }
-            else {
-                if (doTheColorThingy) System.err.println(ConsoleColors.RED_BOLD + "Couldn't delete " + ConsoleColors.RESET + file.toPath());
-                else System.err.println("Couldn't delete " + file.toPath());
-            }
-        }
     }
 }
