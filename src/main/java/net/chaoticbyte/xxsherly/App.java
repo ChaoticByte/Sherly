@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.cli.CommandLine;
@@ -18,8 +18,6 @@ import org.apache.commons.cli.ParseException;
 public class App {
 
     public static final String usageHelp = "xxSherly.jar [options] folder1 folder2 ...";
-
-    public static HashMap<String, List<File>> fileMap = new HashMap<>();
 
     public static boolean doTheColorThingy = false;
     public static boolean verbose = false;
@@ -98,6 +96,8 @@ public class App {
 
         // Calculate Hashes
 
+        ConcurrentHashMap<String, List<File>> fileMap = new ConcurrentHashMap<>();
+
         files.parallelStream().forEach(file -> {
 
             List<File> fileArray = new ArrayList<>();
@@ -107,11 +107,11 @@ public class App {
             // Generate Checksum
             try {
                 String checksum = FileChecksum.getChecksum(file);
-                if (App.fileMap.containsKey(checksum)) {
-                    fileArray.addAll(App.fileMap.get(checksum));
-                    App.fileMap.put(checksum, fileArray);
+                if (fileMap.containsKey(checksum)) {
+                    fileArray.addAll(fileMap.get(checksum));
+                    fileMap.put(checksum, fileArray);
                 } else {
-                    App.fileMap.put(checksum, fileArray);
+                    fileMap.put(checksum, fileArray);
                 }
             }
             catch (IOException e) {
@@ -122,7 +122,7 @@ public class App {
 
         ArrayList<String> toRemove = new ArrayList<String>();
         for (String checksum: fileMap.keySet()) {
-            if (App.fileMap.get(checksum).size() == 1) {
+            if (fileMap.get(checksum).size() == 1) {
                 toRemove.add(checksum);
             }
         }
@@ -149,8 +149,8 @@ public class App {
         int toBeDeleted = 0;
         long bytes = 0;
         for (String checksum: fileMap.keySet()) {
-            App.fileMap.get(checksum).remove(0);
-            for (File file: App.fileMap.get(checksum)) {
+            fileMap.get(checksum).remove(0);
+            for (File file: fileMap.get(checksum)) {
                 if (file != null) bytes += file.length();
             }
             toBeDeleted++;
@@ -158,7 +158,7 @@ public class App {
 
         if (doTheColorThingy) {
             String color = ConsoleColors.RED_BOLD;
-            if (fileMap.size() < 1) color = ConsoleColors.GREEN_BOLD;
+            if (toBeDeleted < 1) color = ConsoleColors.GREEN_BOLD;
             System.out.println(color + (bytes / 1000000.0) + " redundant MB in " + toBeDeleted + " file(s) found." + ConsoleColors.RESET);
         } else System.out.println((bytes / 1000000.0) + " redundant MB in " + toBeDeleted + " file(s) found.");
     }
