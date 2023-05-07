@@ -16,12 +16,9 @@ Note that xxHash is not a cryptographic hash function and therefore may produce 
 
 ```
 usage: xxSherly.jar [options] folder1 folder2 ...
- -c,--color           enable colored output
- -h,--help            show this help message
- -p,--progress        enable progress indicator
- -t,--threads <arg>   override default thread number (defaults to the
-                      number of cores)
- -v,--verbose         more verbose output
+ -c,--color     enable colored output
+ -h,--help      show this help message
+ -v,--verbose   more verbose output
 ```
 
 ## Build
@@ -44,15 +41,19 @@ mvn package assembly:single
 I let Sherly and xxSherly find duplicates in my Music Library (containing `.wav` files) using the following commands:
 
 ```bash
+# Sherly v1.1.4
 time java -jar Bin/sherly.jar -n -f ~/Music/
-time java -jar target/xxSherly-x.y-jar-with-dependencies.jar -n -f ~/Music/
+# xxSherly v2.1
+time java -jar target/xxSherly-2.1-jar-with-dependencies.jar ~/Music/
+# xxSherly v3.0
+time java -jar target/xxSherly-3.0-jar-with-dependencies.jar ~/Music/
 ```
 
 The timings are measured using the Linux tool `time` (`real`).
 
-|           | Sherly v1.1.4 |   xxSherly v1.0 |
-| --------: | ------------: | --------------: |
-|  1st run  |        4.055s |          2.561s |
-|  2nd run  |        4.055s |          2.304s |
-|  3rd run  |        4.066s |          2.549s |
-|  **avg**  |    **4.059s** |      **2.471s** |
+|           | Sherly v1.1.4 | xxSherly v2.1 | xxSherly v3.0 |
+| --------: | ------------: | ------------: | ------------: |
+|  1st run  |        4.055s |        2.554s |        2.086s |
+|  2nd run  |        4.055s |        2.554s |        2.109s |
+|  3rd run  |        4.066s |        2.556s |        2.092s |
+|  **avg**  |    **4.059s** |    **2.555s** |    **2.096s** |
